@@ -1,6 +1,7 @@
 package co.paulfran.paulfranco.dictionaryapp;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -99,4 +100,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             e.printStackTrace();
         }
     }
+
+    public Cursor getMeaning(String text) {
+        Cursor c = myDatabase.rawQuery("SELECT en_definition,example,synonyms,antonyms FROM words WHERE en_word==UPPER('"+text+"')", null);
+        return c;
+    }
+
+    public Cursor getSuggestions(String text) {
+        Cursor c = myDatabase.rawQuery("SELECT _id, en_word FROM words WHERE en_word LIKE '"+text+"%' LIMIT 40", null);
+        return c;
+    }
+
 }
