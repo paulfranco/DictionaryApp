@@ -1,6 +1,7 @@
 package co.paulfran.paulfranco.dictionaryapp;
 
 import android.content.Intent;
+import android.database.SQLException;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -13,6 +14,8 @@ import android.widget.SearchView;
 public class MainActivity extends AppCompatActivity {
 
     SearchView search;
+    static DatabaseHelper mDbHelper;
+    static boolean databaseOpened = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,10 +31,27 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 search.setIconified(false);
-                Intent intent = new Intent(MainActivity.this, WordMeaningActivity.class);
-                startActivity(intent);
             }
         });
+
+        mDbHelper = new DatabaseHelper(this);
+
+        if (mDbHelper.checkDatabase()) {
+            openDatabase();
+        } else {
+            // if database doesnt exist
+            LoadDatabaseAsync task = new LoadDatabaseAsync(MainActivity.this);
+            task.execute();
+        }
+    }
+
+    protected static void openDatabase() {
+        try {
+            mDbHelper.openDataBase();
+            databaseOpened = true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
