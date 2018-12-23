@@ -43,8 +43,39 @@
 
         </LinearLayout>
 
-
-
     </android.support.design.widget.AppBarLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/empty_history"
+            android:layout_marginTop="150dp"
+            android:visibility="visible"
+            android:gravity="center">
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:textColor="#313131"
+                android:textSize="22sp"
+                android:text="Words Youe Searched most\n recently will who up here"/>
+
+        </RelativeLayout>
+        <android.support.v7.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:scrollbars="vertical"
+            android:id="@+id/recycler_view_history">
+
+        </android.support.v7.widget.RecyclerView>
+
+    </LinearLayout>
 
 </android.support.design.widget.CoordinatorLayout>

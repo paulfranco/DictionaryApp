@@ -1,5 +1,8 @@
 package co.paulfran.paulfranco.dictionaryapp;
 
+import android.database.Cursor;
+import android.database.SQLException;
+import android.speech.tts.TextToSpeech;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -8,10 +11,14 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageButton;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import co.paulfran.paulfranco.dictionaryapp.fragments.FragmentAntonyms;
 import co.paulfran.paulfranco.dictionaryapp.fragments.FragmentDefinition;
@@ -23,15 +30,75 @@ public class WordMeaningActivity extends AppCompatActivity {
 
     private ViewPager mViewPager;
 
+    String enWord;
+    DatabaseHelper myDbHelper;
+    Cursor c = null;
+
+    public String enDefinition;
+    public String example;
+    public String synonyms;
+    public String antonyms;
+
+    TextToSpeech tts;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_word_meaning);
 
+        // received values
+        Bundle bundle = getIntent().getExtras();
+        enWord = bundle.getString("en_word");
+
+        // open the database
+        myDbHelper = new DatabaseHelper(this);
+        try {
+            myDbHelper.openDataBase();
+        } catch (SQLException sqle) {
+            throw sqle;
+        }
+
+        // get meaning
+        c = myDbHelper.getMeaning(enWord);
+
+        // move cursor to the first result
+        if (c.moveToFirst()) {
+            //get data from our variables
+            enDefinition = c.getString(c.getColumnIndex("en_definition"));
+            example = c.getString(c.getColumnIndex("example"));
+            synonyms = c.getString(c.getColumnIndex("synonyms"));
+            antonyms = c.getString(c.getColumnIndex("antonyms"));
+        }
+
+        myDbHelper.insertHistory(enWord);
+
+        ImageButton btnSpeak = (ImageButton) findViewById(R.id.btnSpeak);
+
+        btnSpeak.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                tts = new TextToSpeech(WordMeaningActivity.this, new TextToSpeech.OnInitListener() {
+                    @Override
+                    public void onInit(int status) {
+                        if (status == TextToSpeech.SUCCESS) {
+                            int result = tts.setLanguage(Locale.getDefault());
+                            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                                Log.e("error", "This Language is not supported");
+                            } else {
+                                tts.speak(enWord, TextToSpeech.QUEUE_FLUSH, null);
+                            }
+                        } else {
+                            Log.e("error", "Initialization Failed!");
+                        }
+                    }
+                });
+            }
+        });
+
         // Add The Toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.mToolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("English Words");
+        getSupportActionBar().setTitle(enWord);
 
         // Add back navigation on the Toolbar
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back);

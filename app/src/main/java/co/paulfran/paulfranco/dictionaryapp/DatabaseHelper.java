@@ -16,7 +16,7 @@ import java.io.OutputStream;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private String DB_PATH = null;
-    private static String DB_NAME = "eng.dictionary.db";
+    private static String DB_NAME = "eng_dictionary.db";
     private SQLiteDatabase myDatabase;
     private final Context myContext;
 
@@ -61,7 +61,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         InputStream myInput = myContext.getAssets().open(DB_NAME);
         String outFileName = DB_PATH + DB_NAME;
         OutputStream myOutput = new FileOutputStream(outFileName);
-        byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[64];
         int length;
         while ((length = myInput.read(buffer)) > 0) {
             myOutput.write(buffer, 0, length);
@@ -109,6 +109,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public Cursor getSuggestions(String text) {
         Cursor c = myDatabase.rawQuery("SELECT _id, en_word FROM words WHERE en_word LIKE '"+text+"%' LIMIT 40", null);
         return c;
+    }
+
+    public void insertHistory(String text) {
+        myDatabase.execSQL("INSERT INTO history(word) VALUES(UPPER('"+text+"'))");
     }
 
 }
