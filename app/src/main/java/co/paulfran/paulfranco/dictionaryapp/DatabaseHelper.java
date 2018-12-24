@@ -115,4 +115,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         myDatabase.execSQL("INSERT INTO history(word) VALUES(UPPER('"+text+"'))");
     }
 
+    public Cursor getHistory() {
+
+        Cursor c = myDatabase.rawQuery("SELECT DISTINCT word FROM history ORDER BY _id DESC", null);
+        return c;
+    }
+
+    public void deleteHistory() {
+        myDatabase.execSQL("DELETE FROM history");
+    }
+
+
 }

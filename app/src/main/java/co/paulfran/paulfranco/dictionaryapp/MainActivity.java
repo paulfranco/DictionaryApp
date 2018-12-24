@@ -9,15 +9,16 @@ import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.RelativeLayout;
 
-
-
-
+import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -27,6 +28,14 @@ public class MainActivity extends AppCompatActivity {
     static boolean databaseOpened = false;
 
     SimpleCursorAdapter suggestionAdapter;
+
+    ArrayList<History> historyList;
+    RecyclerView recyclerView;
+    RecyclerView.LayoutManager layoutManager;
+    RecyclerView.Adapter historyAdapter;
+
+    RelativeLayout emptyHistory;
+    Cursor cursorHistory;
 
 
     @Override
@@ -156,6 +165,17 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+
+        emptyHistory = (RelativeLayout) findViewById(R.id.empty_history);
+
+        // recycler view
+        recyclerView = (RecyclerView) findViewById(R.id.recycler_view_history);
+        layoutManager = new LinearLayoutManager(MainActivity.this);
+
+        recyclerView.setLayoutManager(layoutManager);
+
+        fetch_history();
+
     }
 
 
@@ -167,6 +187,35 @@ public class MainActivity extends AppCompatActivity {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    private void fetch_history() {
+
+        historyList = new ArrayList<>();
+        historyAdapter = new RecyclerViewAdapterHistory(this, historyList);
+        recyclerView.setAdapter(historyAdapter);
+
+        History h;
+
+        if (databaseOpened) {
+            cursorHistory = mDbHelper.getHistory();
+            if (cursorHistory.moveToFirst()) {
+                do {
+                    h = new History(cursorHistory.getString(cursorHistory.getColumnIndex("word")));
+                    historyList.add(h);
+                }
+                while (cursorHistory.moveToNext());
+            }
+            historyAdapter.notifyDataSetChanged();
+
+            if (historyAdapter.getItemCount() == 0) {
+                emptyHistory.setVisibility(View.VISIBLE);
+            } else {
+                emptyHistory.setVisibility(View.GONE);
+            }
+        }
+
+
     }
 
     @Override
@@ -194,5 +243,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        fetch_history();
     }
 }
