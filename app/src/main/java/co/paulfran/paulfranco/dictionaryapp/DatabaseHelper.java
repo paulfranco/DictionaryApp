@@ -117,7 +117,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public Cursor getHistory() {
 
-        Cursor c = myDatabase.rawQuery("SELECT DISTINCT word FROM history ORDER BY _id DESC", null);
+        Cursor c = myDatabase.rawQuery("SELECT DISTINCT word, en_definition FROM history h JOIN words w ON h.word==w.en_word ORDER BY h._id DESC", null);
         return c;
     }
 

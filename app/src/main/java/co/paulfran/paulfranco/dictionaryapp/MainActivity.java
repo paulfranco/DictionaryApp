@@ -19,6 +19,8 @@ import android.view.View;
 import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -112,45 +114,32 @@ public class MainActivity extends AppCompatActivity {
             public boolean onQueryTextSubmit(String s) {
 
                 String text = search.getQuery().toString();
-                Cursor c = mDbHelper.getMeaning(text);
 
-                if (c.getCount() == 0) {
-                    search.setQuery("", false);
+                // REGEX to avoid app from crashing when iser enters ' (single quote)
+                Pattern p = Pattern.compile("[A-Za-z \\-.]{1,25}");
+                Matcher m  = p.matcher(s);
 
-                    AlertDialog.Builder builder  = new AlertDialog.Builder(MainActivity.this, R.style.MyDialogTheme);
-                    builder.setTitle("Word Not Found");
-                    builder.setMessage("Please search again");
+                if (m.matches()) {
 
-                    String positiveText = getString(android.R.string.ok);
-                    builder.setPositiveButton(positiveText, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            // positive button logic
-                        }
-                    });
+                    Cursor c = mDbHelper.getMeaning(text);
 
-                    String negativeText = getString(android.R.string.cancel);
-                    builder.setNegativeButton(negativeText, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            search.clearFocus();
-                        }
-                    });
+                    if (c.getCount() == 0) {
 
-                    AlertDialog dialog = builder.create();
-                    dialog.show();
+                        showAlertDialog();
 
-                } else {
+                    } else {
 
-                    search.clearFocus();
-                    search.setFocusable(false);
+                        search.clearFocus();
+                        search.setFocusable(false);
 
-                    Intent intent = new Intent(MainActivity.this, WordMeaningActivity.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putString("en_word", text);
-                    startActivity(intent);
+                        Intent intent = new Intent(MainActivity.this, WordMeaningActivity.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putString("en_word", text);
+                        startActivity(intent);
 
+                    }
                 }
+
                 return false;
             }
 
@@ -159,8 +148,19 @@ public class MainActivity extends AppCompatActivity {
 
                 // Give suggestions list margins
                 search.setIconifiedByDefault(false);
-                Cursor cursorSuggestion = mDbHelper.getSuggestions(s);
-                suggestionAdapter.changeCursor(cursorSuggestion);
+
+                // REGEX to avoid app from crashing when iser enters ' (single quote)
+                Pattern p = Pattern.compile("[A-Za-z \\-.]{1,25}");
+                Matcher m  = p.matcher(s);
+
+                if (m.matches()) {
+
+                    Cursor cursorSuggestion = mDbHelper.getSuggestions(s);
+                    suggestionAdapter.changeCursor(cursorSuggestion);
+
+                } else {
+                    showAlertDialog();
+                }
 
                 return false;
             }
@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
             cursorHistory = mDbHelper.getHistory();
             if (cursorHistory.moveToFirst()) {
                 do {
-                    h = new History(cursorHistory.getString(cursorHistory.getColumnIndex("word")));
+                    h = new History(cursorHistory.getString(cursorHistory.getColumnIndex("word")), cursorHistory.getString(cursorHistory.getColumnIndex("en_definition")));
                     historyList.add(h);
                 }
                 while (cursorHistory.moveToNext());
@@ -217,6 +217,37 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+
+    private void showAlertDialog() {
+
+        search.setQuery("", false);
+
+        AlertDialog.Builder builder  = new AlertDialog.Builder(MainActivity.this, R.style.MyDialogTheme);
+        builder.setTitle("Word Not Found");
+        builder.setMessage("Please search again");
+
+        String positiveText = getString(android.R.string.ok);
+        builder.setPositiveButton(positiveText, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                // positive button logic
+            }
+        });
+
+        String negativeText = getString(android.R.string.cancel);
+        builder.setNegativeButton(negativeText, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                search.clearFocus();
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
