@@ -16,21 +16,21 @@ public class RecyclerViewAdapterHistory extends RecyclerView.Adapter<RecyclerVie
     private ArrayList<History> histories;
     private Context context;
 
-    // constructor
     public RecyclerViewAdapterHistory(Context context, ArrayList<History> histories) {
         this.histories = histories;
         this.context = context;
     }
 
-    public class HistoryViewHolder extends RecyclerView.ViewHolder {
-
+    public  class HistoryViewHolder extends RecyclerView.ViewHolder {
         TextView enWord;
         TextView enDef;
+
 
         public HistoryViewHolder(View v) {
             super(v);
             enWord = (TextView) v.findViewById(R.id.en_word);
             enDef = (TextView) v.findViewById(R.id.en_def);
+
 
             v.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -46,24 +46,25 @@ public class RecyclerViewAdapterHistory extends RecyclerView.Adapter<RecyclerVie
                 }
             });
         }
+    }
 
-    };
 
     @Override
-    public HistoryViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public HistoryViewHolder onCreateViewHolder(ViewGroup parent,int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.history_item_layout, parent, false);
         return new HistoryViewHolder(view);
     }
+
 
     @Override
     public void onBindViewHolder(HistoryViewHolder holder, final int position) {
         holder.enWord.setText(histories.get(position).get_en_word());
         holder.enDef.setText(histories.get(position).get_def());
+
     }
 
     @Override
     public int getItemCount() {
         return histories.size();
     }
-
 }
