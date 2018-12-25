@@ -64,7 +64,7 @@
                 android:textAlignment="center"
                 android:textColor="#313131"
                 android:textSize="22sp"
-                android:text="Words Youe Searched most\n recently will who up here"/>
+                android:text="Words You Searched most\n recently will who up here"/>
 
         </RelativeLayout>
         <android.support.v7.widget.RecyclerView
