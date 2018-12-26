@@ -1,4 +1,4 @@
-# DictionaryApp
+# Android Dictionary App
 Simple Dictionary App
 
 **Screenshots**
