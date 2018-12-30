@@ -1,5 +1,5 @@
 # Android Dictionary App
-Simple Dictionary App
+Simple Dictionary App with internal database
 
 **Screenshots**
 
